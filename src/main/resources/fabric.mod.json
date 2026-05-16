@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "pinata",
+  "version": "${version}",
+  "name": "Pinata",
+  "description": "Adds a configurable Pinata block that looks like a rainbow jeb_ sheep. Hit it to get loot!",
+  "authors": ["justfatlard"],
+  "license": "MIT",
+  "icon": "assets/pinata/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["justfatlard.pinata.Pinata"],
+    "client": ["justfatlard.pinata.client.PinataClient"]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "fabric-api": "*",
+    "minecraft": ">=26.1",
+    "java": ">=25"
+  }
+}
