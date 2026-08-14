@@ -72,13 +72,21 @@ public class PinataBlockEntityRenderer implements BlockEntityRenderer<PinataBloc
 
         int light = state.lightCoords;
 
-        // Body — use full 10-param overload with explicit white color, no outline
+        // Body: explicit white color, no outline
         collector.submitModel(
             sheepModel, dummySheepState, matrices,
             sheepModel.renderType(SHEEP_TEXTURE),
             light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF,
-            null, 0, state.breakProgress
+            null, 0
         );
+        if (state.breakProgress != null) {
+            collector.submitCrumblingOverlay(
+                sheepModel, dummySheepState, matrices,
+                sheepModel.renderType(SHEEP_TEXTURE),
+                light, OverlayTexture.NO_OVERLAY, 0xFFFFFFFF,
+                state.breakProgress
+            );
+        }
 
         // Wool with rainbow tint (skip when in cooldown = sheared look)
         if (!state.inCooldown) {
@@ -92,8 +100,16 @@ public class PinataBlockEntityRenderer implements BlockEntityRenderer<PinataBloc
                 woolModel, dummySheepState, matrices,
                 woolModel.renderType(SHEEP_WOOL_TEXTURE),
                 light, OverlayTexture.NO_OVERLAY, packedColor,
-                null, 0, state.breakProgress
+                null, 0
             );
+            if (state.breakProgress != null) {
+                collector.submitCrumblingOverlay(
+                    woolModel, dummySheepState, matrices,
+                    woolModel.renderType(SHEEP_WOOL_TEXTURE),
+                    light, OverlayTexture.NO_OVERLAY, packedColor,
+                    state.breakProgress
+                );
+            }
         }
 
         matrices.popPose();

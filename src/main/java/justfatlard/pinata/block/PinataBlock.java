@@ -1,6 +1,5 @@
 package justfatlard.pinata.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -17,17 +16,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class PinataBlock extends BaseEntityBlock {
-    public static final MapCodec<PinataBlock> CODEC = simpleCodec(PinataBlock::new);
-
     protected static final VoxelShape SHAPE = Block.box(3.0, 0.0, 1.0, 13.0, 10.0, 15.0);
 
     public PinataBlock(Properties settings) {
         super(settings);
-    }
-
-    @Override
-    protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 
     @Override
