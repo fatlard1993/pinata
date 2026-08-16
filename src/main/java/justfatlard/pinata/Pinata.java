@@ -1,18 +1,31 @@
 package justfatlard.pinata;
 
+import justfatlard.pinata.block.AnchorSheepTracker;
 import justfatlard.pinata.block.PinataBlock;
 import justfatlard.pinata.block.PinataBlockEntity;
 import justfatlard.pinata.command.PinataCommand;
+import justfatlard.pandorical.api.BlockRegistration;
+import justfatlard.pandorical.api.ItemRegistration;
+import justfatlard.pandorical.api.PandoricalApi;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -45,6 +58,15 @@ public class Pinata implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // Pandorical content sync: lets Pandorical clients register the block/item
+        // and assets locally so no pinata client jar is needed.
+        PandoricalApi.content().registerBlock(MOD_ID + ":pinata", new BlockRegistration()
+            .baseBlock("minecraft:white_wool")
+            .model(MOD_ID + ":block/pinata"));
+        PandoricalApi.content().registerItem(MOD_ID + ":pinata", new ItemRegistration()
+            .model(MOD_ID + ":item/pinata"));
+        PandoricalApi.content().registerModAssets(MOD_ID);
+
         Registry.register(BuiltInRegistries.BLOCK, PINATA_BLOCK_ID, PINATA_BLOCK);
         Registry.register(BuiltInRegistries.ITEM, PINATA_BLOCK_ID, PINATA_BLOCK_ITEM);
 
@@ -54,10 +76,53 @@ public class Pinata implements ModInitializer {
             FabricBlockEntityTypeBuilder.create(PinataBlockEntity::new, PINATA_BLOCK).build()
         );
 
+        registerAnchorSheepEvents();
+        AnchorSheepTracker.register();
+
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             PinataCommand.register(dispatcher);
         });
 
         System.out.println("[" + MOD_ID + "] Loaded successfully");
+    }
+
+    /**
+     * The pinata's visual is a real, anchored jeb_ sheep. All damage to it is
+     * cancelled; hits with a living attacker are routed to the block entity's
+     * pinata logic, with the vanilla hurt flash/wobble broadcast as feedback.
+     */
+    private static void registerAnchorSheepEvents() {
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+            if (!(entity instanceof Sheep sheep)
+                || !sheep.entityTags().contains(PinataBlockEntity.ANCHOR_SHEEP_TAG)) {
+                return true;
+            }
+
+            if (!(sheep.level() instanceof ServerLevel world)) return false;
+
+            // A sheep whose pinata block is gone (or that a pinata does not claim)
+            // gets cleaned up on the spot rather than absorbing hits forever.
+            if (AnchorSheepTracker.discardIfOrphaned(world, sheep)) return false;
+
+            BlockPos pos = BlockPos.containing(sheep.position());
+            if (world.getBlockEntity(pos) instanceof PinataBlockEntity pinata
+                && source.getEntity() instanceof LivingEntity attacker) {
+                // Cancelled damage suppresses the vanilla hurt animation, so
+                // broadcast it explicitly (flash + wobble, no actual damage).
+                world.broadcastDamageEvent(sheep, source);
+                pinata.onHit(world, pos, attacker instanceof Player player ? player : null);
+            }
+            return false;
+        });
+
+        // Block right-click interactions (shears, dye, wheat, leads, name tags):
+        // the anchor sheep is decor, not livestock.
+        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (entity instanceof Sheep sheep
+                && sheep.entityTags().contains(PinataBlockEntity.ANCHOR_SHEEP_TAG)) {
+                return InteractionResult.FAIL;
+            }
+            return InteractionResult.PASS;
+        });
     }
 }

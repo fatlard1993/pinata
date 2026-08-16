@@ -5,3 +5,8 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+rootProject.name = 'pinata'
+
+include ':pandorical'
+project(':pandorical').projectDir = new File(rootProject.projectDir, '../pandorical')

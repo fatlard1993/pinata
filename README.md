@@ -1,6 +1,6 @@
 # Pinata
 
-A Fabric mod that adds a configurable Pinata block (visually a rainbow jeb_ sheep) that spills configured loot when hit enough times.
+A server-side Fabric mod that adds a configurable Pinata block (visually a rainbow jeb_ sheep) that spills configured loot when hit enough times.
 
 ## Features
 
@@ -14,16 +14,20 @@ A Fabric mod that adds a configurable Pinata block (visually a rainbow jeb_ shee
 - **`/pinata info <pos>`**: inspects an existing pinata's configuration and remaining state
 - Hit/break feedback via particles and sounds, including distinct cooldown feedback for indestructible pinatas
 
+## How the visual works
+
+The pinata block anchors a real, decorative sheep entity (NoAI, silent, persistent, custom-named `jeb_` with the name hidden). Every client, including completely vanilla ones, renders the rainbow wool cycle natively via the built-in jeb_ easter egg; no custom rendering code exists anywhere. Hits on the sheep are cancelled and routed to the pinata's hit logic, with the vanilla hurt flash as feedback. While an indestructible pinata is on cooldown, the sheep is shown sheared; the wool "regrows" when the cooldown ends.
+
 ## Requirements
 
 - Targets the Minecraft, Fabric Loader, and Fabric API versions declared in this mod's `gradle.properties`. Check there for the exact currently-supported version
 - Java version as declared in `fabric.mod.json`'s `depends` block
 
-This mod ships its own client-side rendering code (a real client entrypoint with a custom `BlockEntityRenderer`) for the pinata's 3D model (the rainbow jeb_ sheep look) rather than going through Pandorical. This is a deliberate exception to the suite's usual Pandorical-first approach, since Pandorical does not currently support custom entity/block-entity models.
+This mod is server-side only. It uses Pandorical's content sync for the pinata block/item registration and assets, so connecting clients need only Pandorical installed, nothing pinata-specific.
 
 ## Installation
 
-Install alongside its declared dependencies (see `fabric.mod.json`). Since this mod's client rendering code ships in its own jar (not via Pandorical), connecting clients need this mod installed to see the pinata rendered correctly.
+Server: install alongside its declared dependencies (see `fabric.mod.json`). Clients: only Pandorical is needed; the rainbow sheep visual itself is pure vanilla rendering.
 
 ## License
 

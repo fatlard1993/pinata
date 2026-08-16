@@ -9,8 +9,7 @@
   "icon": "assets/pinata/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["justfatlard.pinata.Pinata"],
-    "client": ["justfatlard.pinata.client.PinataClient"]
+    "main": ["justfatlard.pinata.Pinata"]
   },
   "mixins": [],
   "depends": {

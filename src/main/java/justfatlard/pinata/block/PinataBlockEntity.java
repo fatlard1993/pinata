@@ -2,12 +2,17 @@ package justfatlard.pinata.block;
 
 import justfatlard.pinata.Pinata;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
@@ -18,12 +23,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class PinataBlockEntity extends BlockEntity {
+    /** Command tag marking the decorative sheep this block entity anchors. */
+    public static final String ANCHOR_SHEEP_TAG = "pinata_anchor";
+
     private boolean indestructible = false;
     private int hitsToBreak = 5;
     private int hitsRemaining = 5;
@@ -38,8 +48,126 @@ public class PinataBlockEntity extends BlockEntity {
 
     private final Random random = new Random();
 
+    // The real, decorative "jeb_" sheep this block anchors. UUID is persisted;
+    // the direct reference is just a per-load cache.
+    private UUID sheepUuid;
+    private Sheep sheepCache;
+
     public PinataBlockEntity(BlockPos pos, BlockState state) {
         super(Pinata.PINATA_BLOCK_ENTITY_TYPE, pos, state);
+    }
+
+    /**
+     * Server-side ticker: keeps the anchored sheep alive, centered, and in sync
+     * with the cooldown state (sheared while depleted). Spawns a fresh sheep if
+     * the anchored one is missing (first tick after placement, or after a chunk
+     * reload where the entity got lost).
+     */
+    public static void serverTick(Level world, BlockPos pos, BlockState state, PinataBlockEntity be) {
+        if (!(world instanceof ServerLevel serverLevel)) return;
+
+        Sheep sheep = be.resolveSheep(serverLevel);
+        if (sheep == null) {
+            sheep = be.spawnAnchorSheep(serverLevel, pos);
+            if (sheep == null) return;
+        }
+
+        double x = pos.getX() + 0.5;
+        double y = pos.getY();
+        double z = pos.getZ() + 0.5;
+
+        if (sheep.isPassenger()) sheep.stopRiding();
+        if (sheep.position().distanceToSqr(x, y, z) > 1.0E-4 || sheep.getYRot() != 0.0f) {
+            sheep.snapTo(x, y, z, 0.0f, 0.0f);
+            sheep.setYBodyRot(0.0f);
+            sheep.setYHeadRot(0.0f);
+            sheep.setDeltaMovement(Vec3.ZERO);
+        }
+
+        if (sheep.isOnFire()) sheep.clearFire();
+        if (sheep.getHealth() < sheep.getMaxHealth()) sheep.setHealth(sheep.getMaxHealth());
+
+        // Cooldown visual: a depleted pinata is a sheared sheep. Wool "regrows"
+        // when the cooldown ends (NoAI sheep never eat grass, so set it manually).
+        boolean depleted = be.isInCooldown();
+        if (sheep.isSheared() != depleted) sheep.setSheared(depleted);
+    }
+
+    private Sheep resolveSheep(ServerLevel world) {
+        if (sheepCache != null && sheepCache.isAlive() && sheepCache.level() == world) {
+            return sheepCache;
+        }
+        sheepCache = null;
+        if (sheepUuid != null && world.getEntity(sheepUuid) instanceof Sheep sheep && sheep.isAlive()) {
+            sheepCache = sheep;
+        }
+        return sheepCache;
+    }
+
+    private Sheep spawnAnchorSheep(ServerLevel world, BlockPos pos) {
+        Sheep sheep = EntityTypes.SHEEP.create(world, EntitySpawnReason.TRIGGERED);
+        if (sheep == null) return null;
+
+        sheep.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0.0f, 0.0f);
+        sheep.setYBodyRot(0.0f);
+        sheep.setYHeadRot(0.0f);
+        sheep.setNoAi(true);
+        sheep.setSilent(true);
+        sheep.setPersistenceRequired();
+        // Vanilla clients render the rainbow wool cycle natively via the jeb_
+        // easter egg (MobRenderer.checkMagicName reads getCustomName(), so the
+        // hidden name still triggers it).
+        sheep.setCustomName(Component.literal("jeb_"));
+        sheep.setCustomNameVisible(false);
+        sheep.setColor(DyeColor.WHITE);
+        sheep.setSheared(isInCooldown());
+        sheep.addTag(ANCHOR_SHEEP_TAG);
+
+        if (!world.addFreshEntity(sheep)) {
+            System.err.println("[" + Pinata.MOD_ID + "] Failed to spawn anchor sheep at " + pos);
+            return null;
+        }
+
+        sheepUuid = sheep.getUUID();
+        sheepCache = sheep;
+        setChanged();
+        AnchorSheepTracker.track(sheep);
+        return sheep;
+    }
+
+    /**
+     * Whether this pinata owns the given sheep. An unclaimed pinata (no sheep
+     * recorded yet) adopts it, so a block whose stored UUID was lost reuses the
+     * sheep already standing on it instead of stacking up a second one.
+     */
+    public boolean claims(Sheep sheep) {
+        if (sheepUuid == null) {
+            sheepUuid = sheep.getUUID();
+            sheepCache = sheep;
+            setChanged();
+            return true;
+        }
+        return sheepUuid.equals(sheep.getUUID());
+    }
+
+    /**
+     * Called from LevelChunk.setBlockState when the block is removed, but only
+     * when the caller did not set Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS
+     * (256). That covers every gameplay path (mined, exploded, the pinata's own
+     * burst, all via Level.destroyBlock) but NOT /setblock and /fill, which
+     * always set that flag; AnchorSheepTracker is the backstop for those.
+     *
+     * <p>Not called on chunk unload, so the sheep persists with the chunk and is
+     * reacquired by UUID on reload.
+     */
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level instanceof ServerLevel serverLevel) {
+            Sheep sheep = resolveSheep(serverLevel);
+            if (sheep != null) sheep.discard();
+            sheepCache = null;
+        }
     }
 
     public boolean isIndestructible() {
@@ -118,6 +246,7 @@ public class PinataBlockEntity extends BlockEntity {
         return currentContentSetIndex;
     }
 
+    /** Handles one pinata hit. {@code player} may be null (e.g. routed non-player damage). */
     public void onHit(Level world, BlockPos pos, Player player) {
         if (world.isClientSide()) return;
 
@@ -204,6 +333,7 @@ public class PinataBlockEntity extends BlockEntity {
         output.putDouble("SpreadDistance", spreadDistance);
         output.putInt("CooldownTicks", cooldownTicks);
         output.putLong("LastResetTick", lastResetTick);
+        output.storeNullable("SheepUuid", UUIDUtil.CODEC, sheepUuid);
 
         ValueOutput.ValueOutputList setsList = output.childrenList("ContentSets");
         for (List<ContentEntry> set : contentSets) {
@@ -228,6 +358,8 @@ public class PinataBlockEntity extends BlockEntity {
         spreadDistance = input.getDoubleOr("SpreadDistance", 0.5);
         cooldownTicks = input.getIntOr("CooldownTicks", 0);
         lastResetTick = input.getLongOr("LastResetTick", 0);
+        sheepUuid = input.read("SheepUuid", UUIDUtil.CODEC).orElse(null);
+        sheepCache = null;
 
         contentSets.clear();
         for (ValueInput setInput : input.childrenListOrEmpty("ContentSets")) {
