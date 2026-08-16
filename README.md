@@ -18,12 +18,6 @@ A server-side Fabric mod that adds a configurable Pinata block (visually a rainb
 
 The pinata block anchors a real, decorative sheep entity (NoAI, silent, persistent, custom-named `jeb_` with the name hidden). Every client, including completely vanilla ones, renders the rainbow wool cycle natively via the built-in jeb_ easter egg; no custom rendering code exists anywhere. Hits on the sheep are cancelled and routed to the pinata's hit logic, with the vanilla hurt flash as feedback. While an indestructible pinata is on cooldown, the sheep is shown sheared; the wool "regrows" when the cooldown ends.
 
-## Requirements
-
-- Targets the Minecraft, Fabric Loader, and Fabric API versions declared in this mod's `gradle.properties`. Check there for the exact currently-supported version
-- Java version as declared in `fabric.mod.json`'s `depends` block
-- Pandorical (see below)
-
 ## Pandorical
 
 Pinata runs server-side, and Pandorical is a hard dependency (`fabric.mod.json`): the server will not load this mod without it. The pinata block and item are registered through Pandorical's content sync, along with their assets.
@@ -32,8 +26,8 @@ Clients are the optional half, and only for the block itself. The rainbow sheep 
 
 ## Installation
 
-Install server-side alongside its declared dependencies (see `fabric.mod.json`). Connecting clients need only Pandorical.
+Install server-side alongside its declared dependencies (see `fabric.mod.json`); connecting clients need only Pandorical. Version targets live in `gradle.properties` (Minecraft, loader, Fabric API) and `fabric.mod.json` (Java).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT, see [LICENSE](LICENSE).
