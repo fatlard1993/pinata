@@ -58,6 +58,18 @@ public class Pinata implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // The crowd is re-gathered on a tick because villagers are brain-driven:
+        // a schedule behaviour will talk a child out of standing anywhere unless
+        // something keeps saying otherwise. It stops on its own when the pinata
+        // is broken, because nothing is left to gather around.
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (!PinataParty.shouldGatherThisTick(server.overworld().getGameTime())) return;
+
+            for (net.minecraft.server.level.ServerLevel level : server.getAllLevels()) {
+                PinataParty.tickParties(level);
+            }
+        });
+
         // Guarded class load: PinataDialogue names village-quests types.
         if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("village-quests-justfatlard")) {
             justfatlard.pinata.integration.PinataDialogue.register();
