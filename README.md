@@ -2,6 +2,12 @@
 
 A server-side Fabric mod that adds a configurable Pinata block (visually a rainbow jeb_ sheep) that spills configured loot when hit enough times.
 
+## Getting One
+
+There is no recipe. An operator can place a fully configured pinata with `/pinata spawn`, which is the way to make one worth queueing up for.
+
+For everyone else, with [village-quests](https://github.com/justfatlard/village-quests) installed, any villager who knows you will sell one for 8 emeralds. A hand-placed pinata carries a modest default of sweets, because a pinata that breaks open onto an empty floor is a sad thing.
+
 ## Features
 
 - **Pinata Block**: Place it and hit it; after a configurable number of hits it breaks and sprays its contents outward as item entities

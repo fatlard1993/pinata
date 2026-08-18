@@ -279,12 +279,36 @@ public class PinataBlockEntity extends BlockEntity {
         }
     }
 
+    /**
+     * What a pinata holds when nobody has said.
+     *
+     * <p>A pinata placed by hand had no content sets and therefore dropped
+     * nothing: it took the hits, it broke, and the party got an empty room. Only
+     * the spawn command ever filled one, so the block was effectively unusable
+     * except by an operator who knew the syntax.
+     *
+     * <p>Sweets, then. Modest on purpose - the command is still how you make one
+     * worth queueing up for.
+     */
+    private static final List<ContentEntry> DEFAULT_CONTENTS = List.of(
+        new ContentEntry(Identifier.withDefaultNamespace("cookie"), 6),
+        new ContentEntry(Identifier.withDefaultNamespace("sweet_berries"), 4),
+        new ContentEntry(Identifier.withDefaultNamespace("glow_berries"), 3),
+        new ContentEntry(Identifier.withDefaultNamespace("emerald"), 1)
+    );
+
     private void dropCurrentContents(Level world, BlockPos pos) {
-        if (contentSets.isEmpty()) return;
+        if (contentSets.isEmpty()) {
+            dropContents(world, pos, DEFAULT_CONTENTS);
+            return;
+        }
 
         int idx = currentContentSetIndex % contentSets.size();
-        List<ContentEntry> contents = contentSets.get(idx);
+        dropContents(world, pos, contentSets.get(idx));
+    }
 
+    /** Spray one set of contents out of the pinata. */
+    private void dropContents(Level world, BlockPos pos, List<ContentEntry> contents) {
         for (ContentEntry entry : contents) {
             Item item = BuiltInRegistries.ITEM.getValue(entry.itemId());
             if (item == null) continue;

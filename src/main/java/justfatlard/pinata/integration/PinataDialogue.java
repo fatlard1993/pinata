@@ -11,11 +11,14 @@ import net.minecraft.world.item.Items;
 /**
  * Somebody in the village will sell you a party.
  *
- * <p>A pinata is craftable and nobody crafts one, because nothing in the game
- * suggests such a thing exists and a recipe book only helps people already
- * looking. It is also the least serious object in the suite, which makes buying
- * one off a villager the right way to meet it: not a quest, not a lesson, just
- * a thing you can go and get if somebody tells you it is there.
+ * <p>A pinata has no recipe at all. Until now the only way to get one was an
+ * operator typing /pinata spawn, which means that on a server where nobody knows
+ * the syntax the block may as well not exist. This is not a nudge toward
+ * something you could have crafted; it is the only door in.
+ *
+ * <p>Which suits it. It is the least serious object in the suite, and buying one
+ * off a villager is the right way to meet it: not a quest, not a lesson, just a
+ * thing you can go and get once somebody tells you it is there.
  *
  * <p>Cheap on purpose. It is a party, not an heirloom, and the point is that a
  * child with eight emeralds can decide today is somebody's birthday.
