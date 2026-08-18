@@ -41,6 +41,20 @@ public final class PinataParty {
 	private static final int MEMORY_TTL_TICKS = 100;
 	private static final int REASSERT_INTERVAL = 40;
 
+	/**
+	 * When the party is over.
+	 *
+	 * <p>Dusk falls around twelve thousand, and a child who leaves at dusk is a
+	 * child walking home in the dark. Eleven thousand sends them off with enough
+	 * daylight to get inside, which is what anybody sensible would do with other
+	 * people's children.
+	 *
+	 * <p>Nothing has to be undone to end it. The walk target carries an expiry, so
+	 * simply not re-asserting it hands them back to their own schedule within five
+	 * seconds and they take themselves home.
+	 */
+	private static final long HOME_TIME = 11000L;
+
 	/** Somewhere outside to hang it: clear ground with room to swing. */
 	public static BlockPos findPartySpot(ServerLevel world, BlockPos near) {
 		for (int attempt = 0; attempt < 32; attempt++) {
@@ -106,6 +120,14 @@ public final class PinataParty {
 	public static void tickParties(ServerLevel world) {
 		java.util.Set<Long> here = PARTIES.get(world.dimension());
 		if (here == null || here.isEmpty()) return;
+
+		// A party is an afternoon. It does not reconvene at dawn either: an
+		// unbroken pinata pulling every child off their routine every morning
+		// forever is a haunting, not a celebration.
+		if (world.getOverworldClockTime() % 24000L >= HOME_TIME) {
+			here.clear();
+			return;
+		}
 
 		here.removeIf(packed -> {
 			BlockPos pos = BlockPos.of(packed);
