@@ -6,7 +6,7 @@ A server-side Fabric mod that adds a configurable Pinata block (visually a rainb
 
 There is no recipe. An operator can place a fully configured pinata with `/pinata spawn`, which is the way to make one worth queueing up for.
 
-Otherwise, with [village-quests](https://github.com/justfatlard/village-quests) installed, a village that thinks well of you (45 reputation) will occasionally offer to put one up. Nothing is charged. Reputation there buys belonging rather than goods, and a village throwing a party for its children is belonging in its plainest form.
+Otherwise, with [village-quests](https://github.com/fatlard1993/village-quests) installed, a village that thinks well of you (45 reputation) will occasionally offer to put one up. Nothing is charged. Reputation there buys belonging rather than goods, and a village throwing a party for its children is belonging in its plainest form.
 
 It goes up outside, and every child in the village walks over and stands around it until somebody breaks it or the light starts to go. They head home before dusk, because a child who leaves at dusk is a child walking home in the dark. A hand-placed pinata carries a modest default of sweets, because a pinata that breaks open onto an empty floor is a sad thing.
 
