@@ -47,26 +47,34 @@ public final class PinataDialogue {
 				MIN_REPUTATION, Integer.MAX_VALUE));
 		});
 
-		DialogueRegistry.registerDialogueHandler(OPTION_ID, PinataDialogue::sell);
+		// An idle question should not start a village-wide party by itself. The
+		// villager makes the offer; the party begins on the word that means yes.
+		DialogueRegistry.registerRichDialogueHandler(OPTION_ID, (villager, player, optionId) ->
+			DialogueRegistry.Reply.of("Funny you should ask. It has been a while since the children had an occasion. "
+					+ "Say the word and I will fetch the paper sheep.")
+				.option("Say the word.", PinataDialogue::throwParty)
+				.walkAway("Another day, maybe."));
 	}
 
-	private static Component sell(net.minecraft.world.entity.npc.villager.Villager villager,
+	private static DialogueRegistry.Reply throwParty(net.minecraft.world.entity.npc.villager.Villager villager,
 			ServerPlayer player, String optionId) {
 		if (!(player.level() instanceof net.minecraft.server.level.ServerLevel world)) {
-			return Component.literal("...Not just now.");
+			return DialogueRegistry.Reply.of("...Not just now.").walkAway("Alright.");
 		}
 
 		net.minecraft.core.BlockPos spot = PinataParty.findPartySpot(world, villager.blockPosition());
 		if (spot == null) {
-			return Component.literal("There is nowhere to hang it. Clear a bit of ground and ask me again.");
+			return DialogueRegistry.Reply.of("There is nowhere to hang it. Clear a bit of ground and ask me again.")
+				.walkAway("*look for a clearing*");
 		}
 
 		world.setBlockAndUpdate(spot, Pinata.PINATA_BLOCK.defaultBlockState());
 		PinataParty.beginParty(world, spot);
 
-		return Component.literal("Funny you should ask. Wait there. *goes inside, comes back with a sheep made of paper* "
+		return DialogueRegistry.Reply.of("Wait there. *goes inside, comes back with a sheep made of paper* "
 			+ "Outside, where there is room. Give it a moment - they will have heard already, "
-			+ "and they will not need telling twice.");
+			+ "and they will not need telling twice.")
+			.walkAway("*follow them out*");
 	}
 
 }
