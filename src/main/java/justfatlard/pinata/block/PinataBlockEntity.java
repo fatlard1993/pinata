@@ -315,7 +315,7 @@ public class PinataBlockEntity extends BlockEntity {
 
             // Spawn each item individually for spray effect
             for (int i = 0; i < entry.count(); i++) {
-                ItemStack stack = new ItemStack(item, 1);
+                ItemStack stack = entry.stack().isEmpty() ? new ItemStack(item, 1) : entry.stack().copyWithCount(1);
                 double angle = random.nextDouble() * Math.PI * 2;
                 double dist = random.nextDouble() * spreadDistance * 0.3;
                 double x = pos.getX() + 0.5 + Math.cos(angle) * dist;
@@ -367,6 +367,7 @@ public class PinataBlockEntity extends BlockEntity {
                 ValueOutput entryOutput = entriesList.addChild();
                 entryOutput.putString("Item", entry.itemId().toString());
                 entryOutput.putInt("Count", entry.count());
+                if (!entry.stack().isEmpty()) entryOutput.store("Stack", ItemStack.CODEC, entry.stack());
             }
         }
     }
@@ -392,7 +393,8 @@ public class PinataBlockEntity extends BlockEntity {
                 String itemIdStr = entryInput.getStringOr("Item", "minecraft:air");
                 int count = entryInput.getIntOr("Count", 1);
                 Identifier itemId = Identifier.parse(itemIdStr);
-                set.add(new ContentEntry(itemId, count));
+                ItemStack stack = entryInput.read("Stack", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+                set.add(new ContentEntry(itemId, count, stack));
             }
             contentSets.add(set);
         }
@@ -414,6 +416,18 @@ public class PinataBlockEntity extends BlockEntity {
         }
     }
 
-    public record ContentEntry(Identifier itemId, int count) {
+    /**
+     * One kind of item a pinata spills, and how many. {@code stack}, where there is one, is the item
+     * exactly as it was given - a potion's effect, enchantments, a name - and each one spilled is a
+     * copy of it; without one, the plain item.
+     */
+    public record ContentEntry(Identifier itemId, int count, ItemStack stack) {
+        public ContentEntry(Identifier itemId, int count) {
+            this(itemId, count, ItemStack.EMPTY);
+        }
+
+        public static ContentEntry of(ItemStack stack, int count) {
+            return new ContentEntry(BuiltInRegistries.ITEM.getKey(stack.getItem()), count, stack.copyWithCount(1));
+        }
     }
 }

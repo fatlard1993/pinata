@@ -74,6 +74,10 @@ public class Pinata implements ModInitializer {
         if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("village-quests-justfatlard")) {
             justfatlard.pinata.integration.PinataDialogue.register();
         }
+        // Guarded class load: PinataTips names block-tip types.
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("block-tip")) {
+            justfatlard.pinata.integration.PinataTips.register();
+        }
 
         // Pandorical content sync: lets Pandorical clients register the block/item
         // and assets locally so no pinata client jar is needed.

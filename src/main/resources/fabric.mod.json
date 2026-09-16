@@ -24,6 +24,7 @@
 		"pandorical": "*"
 	},
 	"suggests": {
-		"village-quests-justfatlard": "*"
+		"village-quests-justfatlard": "*",
+		"block-tip": "*"
 	}
 }
