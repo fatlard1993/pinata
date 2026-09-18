@@ -44,6 +44,12 @@ public class Pinata implements ModInitializer {
             .strength(2.0f, 6.0f)
             .sound(SoundType.WOOL)
             .noOcclusion()
+            // Solid, said outright. The game works it out from the collision box otherwise -
+            // an average of the three sides against 0.72917 - and a pinata comes to 0.70833,
+            // one pixel under. Everything that asks whether a block is solid before leaning on
+            // it then says no, and the one that matters is flowing water: it counted a pinata
+            // as something to wash away rather than something standing in its path.
+            .forceSolidOn()
             .setId(PINATA_BLOCK_KEY)
     );
 
