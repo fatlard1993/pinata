@@ -26,5 +26,10 @@
 	"suggests": {
 		"village-quests-justfatlard": "*",
 		"block-tip": "*"
+	},
+	"contact": {
+		"homepage": "https://github.com/fatlard1993/pinata",
+		"sources": "https://github.com/fatlard1993/pinata",
+		"issues": "https://github.com/fatlard1993/pinata/issues"
 	}
 }
