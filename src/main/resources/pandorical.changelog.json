@@ -5,14 +5,17 @@
 	],
 	"versions": {
 		"1.0.2": [
-			"A pinata counts as solid, so flowing water stands against it instead of washing it away. Anything hung up for a party should survive a bucket."
+			"A pinata counts as solid, so flowing water stands against it instead of washing it away."
 		],
 		"1.0.1": [
-			"A pinata spills the exact item it was given, name and enchantments and all, and its tip card names what is hanging there rather than the sheep inside it."
+			"A pinata spills the exact item it was given, name and enchantments and all.",
+			"Its tip card names what is hanging there rather than the sheep inside it."
 		],
 		"1.0.0": [
-			"The pinata block, and /pinata spawn to hang a fully configured one. A hand-placed pinata carries a modest default of sweets, because a pinata that breaks open onto an empty floor is a sad thing.",
-			"A village that likes you enough will put one up on its own, and every child walks over and stands around it until somebody breaks it or the light starts to go."
+			"The pinata block, and /pinata spawn to hang a fully configured one.",
+			"A hand-placed pinata carries a modest default of sweets.",
+			"A village that likes you enough will put one up on its own.",
+			"Every child walks over and stands around it until it breaks or the light starts to go."
 		]
 	}
 }
