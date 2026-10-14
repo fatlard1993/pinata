@@ -4,6 +4,9 @@
 		"There is no recipe: an operator hangs one up, or a village that thinks well of you throws the party itself."
 	],
 	"versions": {
+		"1.0.3": [
+			"Release notes rewritten to read plainly; nothing in play changes."
+		],
 		"1.0.2": [
 			"A pinata counts as solid, so flowing water stands against it instead of washing it away."
 		],
