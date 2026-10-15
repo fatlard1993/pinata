@@ -30,9 +30,7 @@ The pinata block anchors a real, decorative sheep entity (NoAI, silent, persiste
 
 ## Pandorical
 
-Pinata runs server-side, and Pandorical is required: the server will not load this mod without it. The pinata block and item are registered through Pandorical's content sync, along with their assets.
-
-Clients are the optional half, and only for the block itself. The rainbow sheep needs nothing: it is a real vanilla sheep named `jeb_`, so every client already renders the wool cycle natively.
+Pinata goes on the server only, and **Pandorical is required there and on every player's client**: the pinata is a new block, and a client without Pandorical has no entry for it. The rainbow sheep is a vanilla sheep named `jeb_`, so it needs nothing.
 
 ## Development
 
