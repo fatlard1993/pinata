@@ -31,5 +31,12 @@
 		"homepage": "https://github.com/fatlard1993/pinata",
 		"sources": "https://github.com/fatlard1993/pinata",
 		"issues": "https://github.com/fatlard1993/pinata/issues"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.donate": "https://github.com/sponsors/fatlard1993"
+			}
+		}
 	}
 }
