@@ -1,0 +1,56 @@
+{
+  "demo": {
+    "name": "Pinata",
+    "icon": "pinata:pinata",
+    "about": [
+      "A pinata that looks like a rainbow jeb_ sheep: hit it enough times and it bursts, spilling its loot.",
+      "Smash the one in the middle; another goes up a minute after, each a little tougher and better filled. You have some of your own to put up too."
+    ]
+  },
+  "pvp_preset": 1,
+  "needs": ["pinata"],
+  "preset": {
+    "name": "Pinata",
+    "icon": "pinata:pinata",
+    "pvp": false,
+    "game_mode": "survival",
+    "entry_kit": [
+      {"slot": 0, "item": {"id": "minecraft:wooden_sword", "count": 1}},
+      {"slot": 1, "item": {"id": "pinata:pinata", "count": 3}},
+      {"slot": 2, "item": {"id": "minecraft:cooked_beef", "count": 8}}
+    ],
+    "respawn_kit": "entry",
+    "goal": "time",
+    "pinata": "after_break",
+    "pinata_minutes": 1,
+    "pinata_count": 1,
+    "pinata_place": "center",
+    "pinata_loot": [
+      {"hits": 5, "items": [
+        {"id": "minecraft:cookie", "count": 6},
+        {"id": "minecraft:sweet_berries", "count": 4},
+        {"id": "minecraft:glow_berries", "count": 3},
+        {"id": "minecraft:emerald", "count": 1}
+      ]},
+      {"hits": 10, "items": [
+        {"id": "minecraft:cake", "count": 1},
+        {"id": "minecraft:golden_carrot", "count": 4},
+        {"id": "minecraft:emerald", "count": 4},
+        {"id": "minecraft:firework_rocket", "count": 8}
+      ]},
+      {"hits": 20, "items": [
+        {"id": "minecraft:golden_apple", "count": 2},
+        {"id": "minecraft:diamond", "count": 3},
+        {"id": "minecraft:emerald", "count": 8},
+        {"id": "minecraft:firework_rocket", "count": 16}
+      ]}
+    ],
+    "mobs": "off",
+    "life": 15,
+    "size": 2,
+    "world": "overworld",
+    "shape": "flat",
+    "biome": "minecraft:flower_forest",
+    "weather": "clear"
+  }
+}
