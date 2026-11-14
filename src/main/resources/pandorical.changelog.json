@@ -4,6 +4,9 @@
 		"There is no recipe: an operator hangs one up, or a village that thinks well of you throws the party itself."
 	],
 	"versions": {
+		"1.0.6": [
+			"A demo to play in PvP Dimensions' onboarding."
+		],
 		"1.0.5": [
 			"Drop changelog notes for changes nothing in the game shows."
 		],
