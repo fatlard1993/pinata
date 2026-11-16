@@ -2,6 +2,7 @@ package justfatlard.pinata.block;
 
 import justfatlard.pinata.Pinata;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -49,6 +50,10 @@ public final class AnchorSheepTracker {
             if (++tickCounter < SWEEP_INTERVAL_TICKS) return;
             tickCounter = 0;
             sweep();
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
+            TRACKED.clear();
+            tickCounter = 0;
         });
     }
 

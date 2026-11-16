@@ -75,6 +75,7 @@ public class Pinata implements ModInitializer {
                 PinataParty.tickParties(level);
             }
         });
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STOPPED.register(server -> PinataParty.forgetAll());
 
         // Guarded class load: PinataDialogue names village-quests types.
         if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("village-quests-justfatlard")) {

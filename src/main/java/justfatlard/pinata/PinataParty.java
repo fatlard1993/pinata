@@ -110,6 +110,10 @@ public final class PinataParty {
 			.add(pinata.asLong());
 	}
 
+	public static void forgetAll() {
+		PARTIES.clear();
+	}
+
 	/**
 	 * Re-gather the children at every party still standing.
 	 *
