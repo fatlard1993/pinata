@@ -4,6 +4,10 @@
 		"There is no recipe: an operator hangs one up, or a village that thinks well of you throws the party itself."
 	],
 	"versions": {
+		"1.0.7": [
+			"A piñata whose chunk reloads waits for its own sheep instead of spawning a new one and throwing the old one out.",
+			"Parties and tracked piñata sheep are forgotten when the server stops, so they do not follow you into the next world."
+		],
 		"1.0.6": [
 			"A demo to play in PvP Dimensions' onboarding."
 		],
