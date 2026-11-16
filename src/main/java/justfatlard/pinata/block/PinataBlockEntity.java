@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -61,13 +62,16 @@ public class PinataBlockEntity extends BlockEntity {
      * Server-side ticker: keeps the anchored sheep alive, centered, and in sync
      * with the cooldown state (sheared while depleted). Spawns a fresh sheep if
      * the anchored one is missing (first tick after placement, or after a chunk
-     * reload where the entity got lost).
+     * reload where the entity got lost once the chunk's entities have loaded).
      */
     public static void serverTick(Level world, BlockPos pos, BlockState state, PinataBlockEntity be) {
         if (!(world instanceof ServerLevel serverLevel)) return;
 
         Sheep sheep = be.resolveSheep(serverLevel);
         if (sheep == null) {
+            // After a chunk reload the block can tick before the chunk's entities are back. Its
+            // sheep is on the way; a fresh one now would only be thrown out as a duplicate.
+            if (be.sheepUuid != null && !serverLevel.areEntitiesLoaded(ChunkPos.pack(pos))) return;
             sheep = be.spawnAnchorSheep(serverLevel, pos);
             if (sheep == null) return;
         }
